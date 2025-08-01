@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import Topbar from "../../_components/topbar/Topbar";
 import ExecutionsTable from "./_components/ExecutionsTable";
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 function ExecutionsPage({
   params,

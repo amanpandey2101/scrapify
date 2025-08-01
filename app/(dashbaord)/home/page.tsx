@@ -9,6 +9,7 @@ import CreditUsageChart from "../billing/_components/CreditUsageChart";
 
 // Force dynamic rendering to prevent build-time prerendering
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 function Homepage({
   searchParams,

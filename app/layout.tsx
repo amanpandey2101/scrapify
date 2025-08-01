@@ -22,9 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider
-      afterSignInUrl="/home"
-      afterSignUpUrl="/home"
-      afterSignOutUrl="/sign-in"
+      afterSignInUrl={`${process.env.NEXT_PUBLIC_APP_URL}/home`}
+      afterSignUpUrl={`${process.env.NEXT_PUBLIC_APP_URL}/home`}
+      afterSignOutUrl={`${process.env.NEXT_PUBLIC_APP_URL}/sign-in`}
       appearance={{
         elements: {
           formButtonPrimary:

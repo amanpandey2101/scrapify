@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import ExecutionViewer from "./_components/ExecutionViewer";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 function ExecutionViewerPage({
   params,

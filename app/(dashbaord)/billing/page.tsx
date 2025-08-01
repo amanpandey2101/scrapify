@@ -17,6 +17,7 @@ import InvoiceButton from "./_components/InvoiceButton";
 
 // Force dynamic rendering to prevent build-time prerendering
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 function BillingPage() {
   return (

@@ -71,9 +71,7 @@
     --chart-1: 262 83% 58%;
     --chart-2: 263 70% 50%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }

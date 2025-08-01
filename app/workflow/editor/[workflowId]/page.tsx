@@ -2,7 +2,8 @@ import React from "react";
 import Editor from "../../_components/Editor";
 
 // Force dynamic rendering to prevent build-time prerendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 async function WorkflowEditorPage({
   params,

@@ -5,6 +5,7 @@ import CreateWorkflowDialog from "./_components/CreateWorkflowDialog";
 
 // Force dynamic rendering to prevent build-time prerendering
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 function page() {
   return (

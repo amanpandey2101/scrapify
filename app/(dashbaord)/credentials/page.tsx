@@ -9,6 +9,7 @@ import DeleteCredentialDialog from "./_components/DeleteCredentialDialog";
 
 // Force dynamic rendering to prevent build-time prerendering
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 function CredentialsPage() {
   return (

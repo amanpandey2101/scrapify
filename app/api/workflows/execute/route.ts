@@ -1,5 +1,6 @@
 // Force dynamic rendering to prevent build-time prerendering
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(request: Request) {
   // Lazy load dependencies to prevent build-time execution
