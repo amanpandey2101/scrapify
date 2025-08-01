@@ -78,7 +78,7 @@ async function StatsCards({ selectedPeriod }: { selectedPeriod: Period }) {
         icon={WaypointsIcon}
       />
       <StatsCard
-        title="Credis Consumed"
+        title="Credits Consumed"
         value={data.creditsConsumed}
         icon={CoinsIcon}
       />
