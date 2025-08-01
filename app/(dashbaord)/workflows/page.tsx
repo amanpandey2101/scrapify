@@ -3,6 +3,9 @@ import UserWorkflowSkeleton from "./_components/UserWorkflowSkeleton";
 import UserWorkflows from "./_components/UserWorkflows";
 import CreateWorkflowDialog from "./_components/CreateWorkflowDialog";
 
+// Force dynamic rendering to prevent build-time prerendering
+export const dynamic = 'force-dynamic';
+
 function page() {
   return (
     <div className="flex flex-1 flex-col h-full">
