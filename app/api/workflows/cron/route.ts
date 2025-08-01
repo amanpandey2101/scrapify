@@ -3,6 +3,9 @@ import prisma from "@/lib/prisma";
 import { WorkflowStatus } from "@/lib/types";
 import { NextRequest } from "next/server";
 
+// Force dynamic rendering to prevent build-time prerendering
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const now = new Date();
