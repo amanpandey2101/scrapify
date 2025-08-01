@@ -1,27 +1,56 @@
-import { ExecutionEnviornment } from "@/lib/types";
-import puppeteer from "puppeteer";
+import {
+  AppNode,
+  ExecutionEnviornment,
+  LogCollector,
+} from "@/lib/types";
+import { Browser as CoreBrowser, Page as CorePage } from "puppeteer-core";
+import { Browser as FullBrowser, Page as FullPage } from "puppeteer";
+import { IWorkflowExecutor } from ".";
+import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer-core";
 import { LaunchBrowserTask } from "../task/LaunchBrowser";
 
-export async function LaunchBrowserExecutor(
-  enviornment: ExecutionEnviornment<typeof LaunchBrowserTask>
-): Promise<boolean> {
-  try {
-    const websiteUrl = enviornment.getInput("Website Url");
-    console.log(websiteUrl);
+type Browser = CoreBrowser | FullBrowser;
+type Page = CorePage | FullPage;
 
-    const browser = await puppeteer.launch({
-      headless: true, // For dev_testing
-      args: ["--no-sandbox"],
-    });
-    enviornment.log.info("Browser started successfully");
-    enviornment.setBrowser(browser);
-    const page = await browser.newPage();
-    await page.goto(websiteUrl);
-    enviornment.setPage(page);
-    enviornment.log.info(`Opened page at: ${websiteUrl}`);
-    return true;
-  } catch (error: any) {
-    enviornment.log.error(error.message);
-    return false;
+export class LaunchBrowserExecutor implements IWorkflowExecutor {
+  async execute(
+    node: AppNode,
+    env: ExecutionEnviornment<typeof LaunchBrowserTask>,
+    log: LogCollector
+  ): Promise<boolean> {
+    try {
+      log.info("Launching browser...");
+      let browser: Browser | null = null;
+      let page: Page | null = null;
+      const websiteUrl = env.getInput("Website Url");
+
+      if (process.env.NODE_ENV === "production") {
+        browser = await puppeteer.launch({
+          args: chromium.args,
+          executablePath: await chromium.executablePath(),
+          headless: true,
+        });
+      } else {
+        const puppeteerLocal = await import("puppeteer");
+        browser = await puppeteerLocal.launch({
+          headless: false,
+        });
+      }
+
+      if (browser) {
+        page = await browser.newPage();
+        await page.goto(websiteUrl);
+        env.setBrowser(browser as FullBrowser);
+        env.setPage(page as FullPage);
+        log.info("Browser launched successfully.");
+        log.info(`Opened page at: ${websiteUrl}`);
+        return true;
+      }
+      return false;
+    } catch (e: any) {
+      log.error(`Error launching browser: ${e.message}`);
+      return false;
+    }
   }
 }
