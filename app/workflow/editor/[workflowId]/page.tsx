@@ -1,8 +1,10 @@
 import prisma from "@/lib/prisma";
-import { buildSafeQuery } from "@/lib/build-db";
 import { auth } from "@clerk/nextjs/server";
 import React from "react";
 import Editor from "../../_components/Editor";
+
+// Force dynamic rendering to prevent build-time prerendering
+export const dynamic = 'force-dynamic';
 
 async function WorkflowEditorPage({
   params,
@@ -17,16 +19,12 @@ async function WorkflowEditorPage({
     return <div>Unauthenticated</div>;
   }
 
-  const workflow = await buildSafeQuery(
-    () => prisma.workflow.findUnique({
-      where: {
-        id: workflowId,
-        userId,
-      },
-    }),
-    null
-  );
-  
+  const workflow = await prisma.workflow.findUnique({
+    where: {
+      id: workflowId,
+      userId,
+    },
+  });
   if (!workflow) {
     return <div>Workflow not found</div>;
   }
