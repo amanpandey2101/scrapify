@@ -2,6 +2,7 @@
 
 import { periodToDateRange } from "@/lib/helper";
 import prisma from "@/lib/prisma";
+import { buildSafeQuery } from "@/lib/build-db";
 import {
   ExecutionPhaseStatus,
   Period,
@@ -18,14 +19,17 @@ export async function getPeriods() {
     throw new Error("Unauthenticated");
   }
 
-  const years = await prisma.workflowExecution.aggregate({
-    where: {
-      userId,
-    },
-    _min: {
-      startedAt: true,
-    },
-  });
+  const years = await buildSafeQuery(
+    () => prisma.workflowExecution.aggregate({
+      where: {
+        userId,
+      },
+      _min: {
+        startedAt: true,
+      },
+    }),
+    { _min: { startedAt: null } }
+  );
 
   const currentYear = new Date().getFullYear();
 
@@ -52,31 +56,34 @@ export async function getStatsCardsValue(period: Period) {
 
   const dateRange = periodToDateRange(period);
 
-  const executions = await prisma.workflowExecution.findMany({
-    where: {
-      userId,
-      startedAt: {
-        gte: dateRange.startDate,
-        lte: dateRange.endDate,
+  const executions = await buildSafeQuery(
+    () => prisma.workflowExecution.findMany({
+      where: {
+        userId,
+        startedAt: {
+          gte: dateRange.startDate,
+          lte: dateRange.endDate,
+        },
+        status: {
+          in: [WorkflowExecutionStatus.COMPLETED, WorkflowExecutionStatus.FAILED],
+        },
       },
-      status: {
-        in: [WorkflowExecutionStatus.COMPLETED, WorkflowExecutionStatus.FAILED],
-      },
-    },
-    select: {
-      creditsConsumed: true,
-      phases: {
-        where: {
-          creditsConsumed: {
-            not: null,
+      select: {
+        creditsConsumed: true,
+        phases: {
+          where: {
+            creditsConsumed: {
+              not: null,
+            },
+          },
+          select: {
+            creditsConsumed: true,
           },
         },
-        select: {
-          creditsConsumed: true,
-        },
       },
-    },
-  });
+    }),
+    []
+  );
 
   const stats = {
     WorkflowExecutions: executions.length,
@@ -105,18 +112,21 @@ export async function getWorkflowExecutionsStats(period: Period) {
 
   const dateRange = periodToDateRange(period);
 
-  const executions = await prisma.workflowExecution.findMany({
-    where: {
-      userId,
-      startedAt: {
-        gte: dateRange.startDate,
-        lte: dateRange.endDate,
+  const executions = await buildSafeQuery(
+    () => prisma.workflowExecution.findMany({
+      where: {
+        userId,
+        startedAt: {
+          gte: dateRange.startDate,
+          lte: dateRange.endDate,
+        },
+        status: {
+          in: [ExecutionPhaseStatus.COMPLETED, ExecutionPhaseStatus.FAILED],
+        },
       },
-      status: {
-        in: [ExecutionPhaseStatus.COMPLETED, ExecutionPhaseStatus.FAILED],
-      },
-    },
-  });
+    }),
+    []
+  );
 
   const stats: WorkflowExecutionType = eachDayOfInterval({
     start: dateRange.startDate,
@@ -150,6 +160,7 @@ export async function getWorkflowExecutionsStats(period: Period) {
 
   return result;
 }
+
 export async function getCreditsUsageInPeriod(period: Period) {
   const { userId } = await auth();
 
@@ -159,15 +170,18 @@ export async function getCreditsUsageInPeriod(period: Period) {
 
   const dateRange = periodToDateRange(period);
 
-  const executionsPhases = await prisma.workflowExecution.findMany({
-    where: {
-      userId,
-      startedAt: {
-        gte: dateRange.startDate,
-        lte: dateRange.endDate,
+  const executionsPhases = await buildSafeQuery(
+    () => prisma.workflowExecution.findMany({
+      where: {
+        userId,
+        startedAt: {
+          gte: dateRange.startDate,
+          lte: dateRange.endDate,
+        },
       },
-    },
-  });
+    }),
+    []
+  );
 
   const stats: WorkflowExecutionType = eachDayOfInterval({
     start: dateRange.startDate,

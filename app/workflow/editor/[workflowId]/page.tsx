@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { buildSafeQuery } from "@/lib/build-db";
 import { auth } from "@clerk/nextjs/server";
 import React from "react";
 import Editor from "../../_components/Editor";
@@ -16,12 +17,16 @@ async function WorkflowEditorPage({
     return <div>Unauthenticated</div>;
   }
 
-  const workflow = await prisma.workflow.findUnique({
-    where: {
-      id: workflowId,
-      userId,
-    },
-  });
+  const workflow = await buildSafeQuery(
+    () => prisma.workflow.findUnique({
+      where: {
+        id: workflowId,
+        userId,
+      },
+    }),
+    null
+  );
+  
   if (!workflow) {
     return <div>Workflow not found</div>;
   }

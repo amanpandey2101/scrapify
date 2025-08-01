@@ -13,9 +13,6 @@ import StatsCard from "./_components/StatsCard";
 import ExecutionStatusChart from "./_components/ExecutionStatusChart";
 import CreditUsageChart from "../billing/_components/CreditUsageChart";
 
-// Force dynamic rendering to prevent build-time prerendering
-export const dynamic = 'force-dynamic';
-
 function Homepage({
   searchParams,
 }: {

@@ -17,9 +17,6 @@ import { getCreditsUsageInPeriod } from "@/actions/analytics";
 import CreditUsageChart from "./_components/CreditUsageChart";
 import InvoiceButton from "./_components/InvoiceButton";
 
-// Force dynamic rendering to prevent build-time prerendering
-export const dynamic = 'force-dynamic';
-
 function BillingPage() {
   return (
     <div className="mx-auto p-4 space-y-8">

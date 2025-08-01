@@ -2,6 +2,7 @@
 
 import { symmetricEncrypt } from "@/lib/credential";
 import prisma from "@/lib/prisma";
+import { buildSafeQuery } from "@/lib/build-db";
 import {
   createCredentialSchema,
   createCredentialSchemaType,
@@ -16,14 +17,17 @@ export async function getUserCredentials() {
     throw new Error("Unauthenticated");
   }
 
-  return await prisma.credential.findMany({
-    where: {
-      userId,
-    },
-    orderBy: {
-      name: "asc",
-    },
-  });
+  return await buildSafeQuery(
+    () => prisma.credential.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    }),
+    []
+  );
 }
 
 export async function createCredential(form: createCredentialSchemaType) {

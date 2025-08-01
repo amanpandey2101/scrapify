@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 
-// Force dynamic rendering to prevent build-time prerendering
-export const dynamic = 'force-dynamic';
-
 // Only import Stripe-related modules if environment variables are available
 let stripe: any = null;
 let handleCheckoutSessionCompleted: any = null;

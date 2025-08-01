@@ -3,6 +3,7 @@
 import { getCreditsPack, PackId, isStripeConfigured } from "@/lib/billing";
 import { getAppUrl } from "@/lib/helper";
 import prisma from "@/lib/prisma";
+import { buildSafeQuery } from "@/lib/build-db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
@@ -25,11 +26,14 @@ export async function getAvailableCredits() {
     throw new Error("Unauthenticated");
   }
 
-  const balance = await prisma.userBalance.findUnique({
-    where: {
-      userId,
-    },
-  });
+  const balance = await buildSafeQuery(
+    () => prisma.userBalance.findUnique({
+      where: {
+        userId,
+      },
+    }),
+    null
+  );
 
   if (!balance) return -1;
 
@@ -43,19 +47,25 @@ export async function setupUser() {
     throw new Error("Unauthenticated");
   }
 
-  const userBalance = await prisma.userBalance.findUnique({
-    where: {
-      userId,
-    },
-  });
+  const userBalance = await buildSafeQuery(
+    () => prisma.userBalance.findUnique({
+      where: {
+        userId,
+      },
+    }),
+    null
+  );
 
   if (!userBalance) {
-    await prisma.userBalance.create({
-      data: {
-        userId,
-        credits: 200,
-      },
-    });
+    await buildSafeQuery(
+      () => prisma.userBalance.create({
+        data: {
+          userId,
+          credits: 200,
+        },
+      }),
+      null
+    );
   }
 
   redirect("/home");
@@ -120,14 +130,17 @@ export async function getUserPurchases() {
     throw new Error("Unauthenticated");
   }
 
-  return await prisma.userPurchase.findMany({
-    where: {
-      userId,
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
+  return await buildSafeQuery(
+    () => prisma.userPurchase.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        date: "desc",
+      },
+    }),
+    []
+  );
 }
 
 export async function downloadInvoice(id: string) {
@@ -142,12 +155,15 @@ export async function downloadInvoice(id: string) {
     throw new Error("Stripe is not configured. Please contact support.");
   }
 
-  const purchase = await prisma.userPurchase.findUnique({
-    where: {
-      userId,
-      id,
-    },
-  });
+  const purchase = await buildSafeQuery(
+    () => prisma.userPurchase.findUnique({
+      where: {
+        userId,
+        id,
+      },
+    }),
+    null
+  );
 
   if (!purchase) {
     throw new Error("Bad request");

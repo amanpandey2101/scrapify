@@ -2,6 +2,7 @@
 
 import { calculateWorkflowCost } from "@/lib/helper";
 import prisma from "@/lib/prisma";
+import { buildSafeQuery } from "@/lib/build-db";
 import { AppNode, TaskType, WorkflowStatus } from "@/lib/types";
 import { createFlowNode } from "@/lib/workflow/CreateFlowNode";
 import { flowToExecutionPlan } from "@/lib/workflow/executionPlan";
@@ -22,10 +23,13 @@ export async function getWorkflowsForUser() {
   if (!userId) {
     throw new Error("Unauthenticated");
   }
-  return prisma.workflow.findMany({
-    where: { userId },
-    orderBy: { createdAt: "asc" },
-  });
+  return buildSafeQuery(
+    () => prisma.workflow.findMany({
+      where: { userId },
+      orderBy: { createdAt: "asc" },
+    }),
+    []
+  );
 }
 
 export async function createWorkflow(form: createWorkflowShemaType) {
@@ -91,12 +95,15 @@ export async function updateWorkFlow({
     throw new Error("Unauthenticated");
   }
 
-  const workflow = await prisma.workflow.findUnique({
-    where: {
-      id,
-      userId,
-    },
-  });
+  const workflow = await buildSafeQuery(
+    () => prisma.workflow.findUnique({
+      where: {
+        id,
+        userId,
+      },
+    }),
+    null
+  );
 
   if (!workflow) {
     throw new Error("Workflow not found");
@@ -125,16 +132,19 @@ export async function getWorkflowExecutionWithPhases(executionId: string) {
     throw new Error("Unauthenticated");
   }
 
-  return prisma.workflowExecution.findUnique({
-    where: { id: executionId, userId },
-    include: {
-      phases: {
-        orderBy: {
-          number: "asc",
+  return buildSafeQuery(
+    () => prisma.workflowExecution.findUnique({
+      where: { id: executionId, userId },
+      include: {
+        phases: {
+          orderBy: {
+            number: "asc",
+          },
         },
       },
-    },
-  });
+    }),
+    null
+  );
 }
 
 export async function getWorkflowPhaseDetails(phaseId: string) {
@@ -144,21 +154,24 @@ export async function getWorkflowPhaseDetails(phaseId: string) {
     throw new Error("Unauthenticated");
   }
 
-  return prisma.executionPhase.findUnique({
-    where: {
-      id: phaseId,
-      execution: {
-        userId,
-      },
-    },
-    include: {
-      logs: {
-        orderBy: {
-          timestamp: "asc",
+  return buildSafeQuery(
+    () => prisma.executionPhase.findUnique({
+      where: {
+        id: phaseId,
+        execution: {
+          userId,
         },
       },
-    },
-  });
+      include: {
+        logs: {
+          orderBy: {
+            timestamp: "asc",
+          },
+        },
+      },
+    }),
+    null
+  );
 }
 
 export async function getWorkflowExecutions(workflowId: string) {
@@ -168,15 +181,18 @@ export async function getWorkflowExecutions(workflowId: string) {
     throw new Error("Unauthenticated");
   }
 
-  return await prisma.workflowExecution.findMany({
-    where: {
-      workflowId,
-      userId,
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-  });
+  return await buildSafeQuery(
+    () => prisma.workflowExecution.findMany({
+      where: {
+        workflowId,
+        userId,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    }),
+    []
+  );
 }
 
 export async function publishWorkflow({
@@ -192,12 +208,15 @@ export async function publishWorkflow({
     throw new Error("Unauthenticated");
   }
 
-  const workflow = await prisma.workflow.findUnique({
-    where: {
-      id,
-      userId,
-    },
-  });
+  const workflow = await buildSafeQuery(
+    () => prisma.workflow.findUnique({
+      where: {
+        id,
+        userId,
+      },
+    }),
+    null
+  );
   if (!workflow) {
     throw new Error("Workflow not found");
   }
@@ -241,12 +260,15 @@ export async function unPublishWorkflow(id: string) {
   if (!userId) {
     throw new Error("Unauthenticated");
   }
-  const workflow = await prisma.workflow.findUnique({
-    where: {
-      id,
-      userId,
-    },
-  });
+  const workflow = await buildSafeQuery(
+    () => prisma.workflow.findUnique({
+      where: {
+        id,
+        userId,
+      },
+    }),
+    null
+  );
   if (!workflow) {
     throw new Error("Workflow not found");
   }
@@ -332,12 +354,15 @@ export async function duplicateWorkflow(form: duplicateWorkflowSchemaType) {
     throw new Error("Unauthenticated");
   }
 
-  const sourceWorkflow = await prisma.workflow.findUnique({
-    where: {
-      userId,
-      id: form.workflowId,
-    },
-  });
+  const sourceWorkflow = await buildSafeQuery(
+    () => prisma.workflow.findUnique({
+      where: {
+        userId,
+        id: form.workflowId,
+      },
+    }),
+    null
+  );
 
   if (!sourceWorkflow) {
     throw new Error("Workflow not found");
