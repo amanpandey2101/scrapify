@@ -1,27 +1,28 @@
-import { ExecutionEnviornment } from "@/lib/types";
+import {
+  AppNode,
+  ExecutionEnviornment,
+  LogCollector,
+} from "@/lib/types";
+import { IWorkflowExecutor } from ".";
 import { FillInputTask } from "../task/FillInput";
 
-export async function FillInputExecutor(
-  enviornment: ExecutionEnviornment<typeof FillInputTask>
-): Promise<boolean> {
-  try {
-    const selector = enviornment.getInput("Selector");
-    if (!selector) {
-      enviornment.log.error("input -> selector is not defined");
+export class FillInputExecutor implements IWorkflowExecutor {
+  async execute(
+    node: AppNode,
+    env: ExecutionEnviornment<typeof FillInputTask>,
+    log: LogCollector
+  ): Promise<boolean> {
+    try {
+      const selector = env.getInput("Selector");
+      const text = env.getInput("Text");
+      const page = env.getPage();
+      await page.waitForSelector(selector);
+      await page.type(selector, text);
+      log.info(`Filled input with selector: ${selector}`);
+      return true;
+    } catch (e: any) {
+      log.error(`Error filling input with selector: ${e.message}`);
       return false;
     }
-
-    const value = enviornment.getInput("Value");
-    if (!value) {
-      enviornment.log.error("input -> value is not defined");
-      return false;
-    }
-
-    await enviornment.getPage()!.type(selector, value);
-
-    return true;
-  } catch (error: any) {
-    enviornment.log.error(error.message);
-    return false;
   }
 }

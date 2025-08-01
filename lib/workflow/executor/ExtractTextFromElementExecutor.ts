@@ -1,42 +1,29 @@
-import { ExecutionEnviornment } from "@/lib/types";
-import * as cheerio from "cheerio";
+import {
+  AppNode,
+  ExecutionEnviornment,
+  LogCollector,
+} from "@/lib/types";
+import { IWorkflowExecutor } from ".";
 import { ExtractTextFromElementTask } from "../task/ExtractTextFromElement";
+import { cheerio } from "cheerio";
 
-export async function ExtractTextFromElement(
-  enviornment: ExecutionEnviornment<typeof ExtractTextFromElementTask>
-): Promise<boolean> {
-  try {
-    const selector = enviornment.getInput("Selector");
-    if (!selector) {
-      enviornment.log.error("Selector not defined");
+export class ExtractTextFromElementExecutor implements IWorkflowExecutor {
+  async execute(
+    node: AppNode,
+    env: ExecutionEnviornment<typeof ExtractTextFromElementTask>,
+    log: LogCollector
+  ): Promise<boolean> {
+    try {
+      const selector = env.getInput("Selector");
+      const html = env.getInput("HTML");
+      const $ = cheerio.load(html);
+      const text = $(selector).text();
+      env.setOutput("Text", text);
+      log.info(`Extracted text from selector: ${selector}`);
+      return true;
+    } catch (e: any) {
+      log.error(`Error extracting text from selector: ${e.message}`);
       return false;
     }
-
-    const html = enviornment.getInput("Html");
-    if (!html) {
-      enviornment.log.error("HTML not defined");
-      return false;
-    }
-
-    const $ = cheerio.load(html);
-    const element = $(selector);
-
-    if (!element) {
-      enviornment.log.error("Element not found on selector");
-      return false;
-    }
-
-    const extractedText = $.text(element);
-    if (!extractedText) {
-      enviornment.log.error("Element has no text");
-      return false;
-    }
-
-    enviornment.setOutput("Extracted Text", extractedText);
-
-    return true;
-  } catch (error: any) {
-    enviornment.log.error(error.message);
-    return false;
   }
 }
