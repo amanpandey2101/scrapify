@@ -1,9 +1,3 @@
-import {
-  getCreditsUsageInPeriod,
-  getPeriods,
-  getStatsCardsValue,
-  getWorkflowExecutionsStats,
-} from "@/actions/analytics";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Period } from "@/lib/types";
 import { CirclePlayIcon, CoinsIcon, WaypointsIcon } from "lucide-react";
@@ -59,11 +53,16 @@ async function PeriodSelectorWrapper({
 }: {
   selectedPeriod: Period;
 }) {
+  // Lazy load the analytics actions
+  const { getPeriods } = await import("@/actions/analytics");
   const periods = await getPeriods();
 
   return <PeriodSelector periods={periods} selectedPeriod={selectedPeriod} />;
 }
+
 async function StatsCards({ selectedPeriod }: { selectedPeriod: Period }) {
+  // Lazy load the analytics actions
+  const { getStatsCardsValue } = await import("@/actions/analytics");
   const data = await getStatsCardsValue(selectedPeriod);
 
   return (
@@ -88,11 +87,16 @@ async function StatsCards({ selectedPeriod }: { selectedPeriod: Period }) {
 }
 
 async function StatsExecutionStatus({ period }: { period: Period }) {
+  // Lazy load the analytics actions
+  const { getWorkflowExecutionsStats } = await import("@/actions/analytics");
   const data = await getWorkflowExecutionsStats(period);
 
   return <ExecutionStatusChart data={data} />;
 }
+
 async function CreditsUsageInPeriod({ period }: { period: Period }) {
+  // Lazy load the analytics actions
+  const { getCreditsUsageInPeriod } = await import("@/actions/analytics");
   const data = await getCreditsUsageInPeriod(period);
 
   return (

@@ -1,4 +1,3 @@
-import { getAvailableCredits, getUserPurchases } from "@/actions/billings";
 import ReactCountUpWrapper from "@/components/ReactCountUpWrapper";
 import {
   Card,
@@ -13,7 +12,6 @@ import { ArrowLeftRightIcon, CoinsIcon } from "lucide-react";
 import { Suspense } from "react";
 import CreditsPurchase from "./_components/CreditsPurchase";
 import { Period } from "@/lib/types";
-import { getCreditsUsageInPeriod } from "@/actions/analytics";
 import CreditUsageChart from "./_components/CreditUsageChart";
 import InvoiceButton from "./_components/InvoiceButton";
 
@@ -41,7 +39,10 @@ function BillingPage() {
 export default BillingPage;
 
 async function BalanceCard() {
+  // Lazy load the billing actions
+  const { getAvailableCredits } = await import("@/actions/billings");
   const userBalance = await getAvailableCredits();
+  
   return (
     <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20 shadow-lg flex justify-between flex-col overflow-hidden">
       <CardContent className="p-6 relative items-center">
@@ -73,6 +74,8 @@ async function CreditUsageCard() {
     year: new Date().getFullYear(),
   };
 
+  // Lazy load the analytics actions
+  const { getCreditsUsageInPeriod } = await import("@/actions/analytics");
   const data = await getCreditsUsageInPeriod(period);
 
   return (
@@ -85,6 +88,8 @@ async function CreditUsageCard() {
 }
 
 async function TransactionHistory() {
+  // Lazy load the billing actions
+  const { getUserPurchases } = await import("@/actions/billings");
   const purchases = await getUserPurchases();
 
   return (

@@ -1,4 +1,3 @@
-import { getUserCredentials } from "@/actions/credentials";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -41,6 +40,8 @@ function CredentialsPage() {
 export default CredentialsPage;
 
 async function UserCredentials() {
+  // Lazy load the credentials actions
+  const { getUserCredentials } = await import("@/actions/credentials");
   const credentials = await getUserCredentials();
 
   if (!credentials) {

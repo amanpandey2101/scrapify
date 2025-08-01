@@ -1,4 +1,3 @@
-import { getWorkflowsForUser } from "@/actions/workflows";
 import React from "react";
 
 import { AlertCircle, InboxIcon } from "lucide-react";
@@ -7,7 +6,10 @@ import CreateWorkflowDialog from "./CreateWorkflowDialog";
 import WorkflowCard from "./WorkflowCard";
 
 async function UserWorkflows() {
+  // Lazy load the workflows actions
+  const { getWorkflowsForUser } = await import("@/actions/workflows");
   const workflows = await getWorkflowsForUser();
+  
   if (!workflows) {
     return (
       <Alert variant="destructive">
