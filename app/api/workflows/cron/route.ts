@@ -1,13 +1,13 @@
-import { getAppUrl } from "@/lib/helper";
-import prisma from "@/lib/prisma";
-import { WorkflowStatus } from "@/lib/types";
-import { NextRequest } from "next/server";
-
 // Force dynamic rendering to prevent build-time prerendering
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: any) {
   try {
+    // Lazy load dependencies to prevent build-time execution
+    const { getAppUrl } = await import("@/lib/helper");
+    const { default: prisma } = await import("@/lib/prisma");
+    const { WorkflowStatus } = await import("@/lib/types");
+
     const now = new Date();
 
     const workflows = await prisma.workflow.findMany({
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     });
     
     for (const workflow of workflows) {
-      triggerWorkflow(workflow.id);
+      triggerWorkflow(workflow.id, getAppUrl);
     }
     
     return Response.json({ workflowsToRun: workflows.length }, { status: 200 });
@@ -38,9 +38,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function triggerWorkflow(wofkflowId: string) {
+function triggerWorkflow(workflowId: string, getAppUrl: (path: string) => string) {
   const triggerApiUrl = getAppUrl(
-    `api/workflows/execute?workflowId=${wofkflowId}`
+    `api/workflows/execute?workflowId=${workflowId}`
   );
   fetch(triggerApiUrl, {
     headers: {
@@ -50,7 +50,7 @@ function triggerWorkflow(wofkflowId: string) {
   }).catch((error: any) => {
     console.error(
       "Error triggering workflow with id",
-      wofkflowId,
+      workflowId,
       ":error->",
       error.message
     );

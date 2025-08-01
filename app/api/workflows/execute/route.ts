@@ -1,19 +1,19 @@
-import prisma from "@/lib/prisma";
-import {
-  ExecutionPhaseStatus,
-  WorkflowExecutionPlan,
-  WorkflowExecutionStatus,
-  WorkflowExecutionTrigger,
-} from "@/lib/types";
-import { executeWorkflow } from "@/lib/workflow/executeWorkflow";
-import { TaskRegistry } from "@/lib/workflow/task/Registry";
-import { timingSafeEqual } from "crypto";
-import parser from "cron-parser";
-
 // Force dynamic rendering to prevent build-time prerendering
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+  // Lazy load dependencies to prevent build-time execution
+  const { default: prisma } = await import("@/lib/prisma");
+  const {
+    ExecutionPhaseStatus,
+    WorkflowExecutionStatus,
+    WorkflowExecutionTrigger,
+  } = await import("@/lib/types");
+  const { executeWorkflow } = await import("@/lib/workflow/executeWorkflow");
+  const { TaskRegistry } = await import("@/lib/workflow/task/Registry");
+  const { timingSafeEqual } = await import("crypto");
+  const parser = await import("cron-parser");
+
   const authHeader = request.headers.get("authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -38,9 +38,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "Bad Request" }, { status: 400 });
   }
 
-  const executionPlan = JSON.parse(
-    workflow.executionPlan!
-  ) as WorkflowExecutionPlan;
+  const executionPlan = JSON.parse(workflow.executionPlan!);
 
   if (!executionPlan) {
     return Response.json({ error: "Bad Request" }, { status: 400 });
@@ -59,14 +57,14 @@ export async function GET(request: Request) {
         startedAt: new Date(),
         trigger: WorkflowExecutionTrigger.CRON,
         phases: {
-          create: executionPlan.flatMap((phase) =>
-            phase.nodes.flatMap((node) => {
+          create: executionPlan.flatMap((phase: any) =>
+            phase.nodes.flatMap((node: any) => {
               return {
                 userId: workflow.userId,
                 status: ExecutionPhaseStatus.CREATED,
                 number: phase.phase,
                 node: JSON.stringify(node),
-                name: TaskRegistry[node.data.type].label,
+                name: TaskRegistry[node.data.type as keyof typeof TaskRegistry].label,
               };
             })
           ),
@@ -85,11 +83,13 @@ function validSecret(secret: string) {
   if (!process.env.API_SECRET) return false;
 
   try {
+    const { timingSafeEqual } = require("crypto");
     return timingSafeEqual(
       Buffer.from(secret),
       Buffer.from(process.env.API_SECRET)
     );
   } catch (error) {
     console.log("Invalid Secret");
+    return false;
   }
 }
