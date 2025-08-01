@@ -1,5 +1,3 @@
-import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import React from "react";
 import Editor from "../../_components/Editor";
 
@@ -12,6 +10,10 @@ async function WorkflowEditorPage({
   params: { workflowId: string };
 }) {
   const { workflowId } = params;
+
+  // Lazy load dependencies to prevent build-time execution
+  const { auth } = await import("@clerk/nextjs/server");
+  const { default: prisma } = await import("@/lib/prisma");
 
   const { userId } = await auth();
 
