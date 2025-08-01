@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "node -e \"const fs = require('fs'); const path = require('path'); const chromiumPath = path.join(require.resolve('@sparticuz/chromium'), '..', 'bin'); const distPath = path.join(process.cwd(), 'dist', 'chromium'); if (fs.existsSync(chromiumPath)) { fs.mkdirSync(distPath, { recursive: true }); fs.cpSync(chromiumPath, distPath, { recursive: true }); console.log('Chromium binary copied to dist folder.'); }\""
   },
   "dependencies": {
     "@clerk/nextjs": "^6.2.0",

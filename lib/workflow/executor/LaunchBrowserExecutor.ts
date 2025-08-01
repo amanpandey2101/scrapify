@@ -26,9 +26,17 @@ export class LaunchBrowserExecutor implements IWorkflowExecutor {
       const websiteUrl = env.getInput("Website Url");
 
       if (process.env.NODE_ENV === "production") {
+        const path = await import("path");
+        const executablePath = path.join(
+          process.cwd(),
+          "dist",
+          "chromium",
+          "chrome"
+        );
+
         browser = await puppeteer.launch({
           args: chromium.args,
-          executablePath: await chromium.executablePath(),
+          executablePath: executablePath,
           headless: true,
         });
       } else {
