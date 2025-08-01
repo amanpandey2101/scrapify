@@ -8,14 +8,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CoinsIcon, CreditCardIcon } from "lucide-react";
-import { CreditsPack, PackId } from "@/lib/billing";
+import { CoinsIcon, CreditCardIcon, AlertCircleIcon } from "lucide-react";
+import { CreditsPack, PackId, isStripeConfigured } from "@/lib/billing";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { purchaseCredits } from "@/actions/billings";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 function CreditsPurchase() {
   const [selectedPack, setSelectedPack] = useState(PackId.MEDIUM);
@@ -25,10 +26,13 @@ function CreditsPurchase() {
     onSuccess: () => {
       toast.success("Credits credited successfully", { id: "purchase" });
     },
-    onError: () => {
-      toast.success("Something went wrong", { id: "purchase" });
+    onError: (error: any) => {
+      toast.error(error.message || "Something went wrong", { id: "purchase" });
     },
   });
+
+  // Check if Stripe is configured
+  const stripeConfigured = isStripeConfigured();
 
   return (
     <Card>
@@ -42,6 +46,14 @@ function CreditsPurchase() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {!stripeConfigured && (
+          <Alert className="mb-4">
+            <AlertCircleIcon className="h-4 w-4" />
+            <AlertDescription>
+              Payment processing is currently unavailable. Please contact support to enable credit purchases.
+            </AlertDescription>
+          </Alert>
+        )}
         <RadioGroup
           onValueChange={(value) => setSelectedPack(value as PackId)}
           value={selectedPack}
@@ -71,11 +83,11 @@ function CreditsPurchase() {
       <CardFooter>
         <Button
           className="w-full"
-          disabled={mutation.isPending}
+          disabled={mutation.isPending || !stripeConfigured}
           onClick={() => mutation.mutate(selectedPack)}
         >
           <CreditCardIcon className="h-5 w-5 mr-2" />
-          Purchase credits
+          {stripeConfigured ? "Purchase credits" : "Payment unavailable"}
         </Button>
       </CardFooter>
     </Card>

@@ -4,24 +4,35 @@ import { WorkflowStatus } from "@/lib/types";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const now = new Date();
+  try {
+    const now = new Date();
 
-  const workflows = await prisma.workflow.findMany({
-    select: {
-      id: true,
-    },
-    where: {
-      status: WorkflowStatus.PUBLISHED,
-      cron: { not: null },
-      nextRunAt: {
-        lte: now,
+    const workflows = await prisma.workflow.findMany({
+      select: {
+        id: true,
       },
-    },
-  });
-  for (const workflow of workflows) {
-    triggerWorkflow(workflow.id);
+      where: {
+        status: WorkflowStatus.PUBLISHED,
+        cron: { not: null },
+        nextRunAt: {
+          lte: now,
+        },
+      },
+    });
+    
+    for (const workflow of workflows) {
+      triggerWorkflow(workflow.id);
+    }
+    
+    return Response.json({ workflowsToRun: workflows.length }, { status: 200 });
+  } catch (error) {
+    // Handle database connection errors gracefully
+    console.error("Cron route error:", error);
+    return Response.json({ 
+      workflowsToRun: 0, 
+      error: "Database not available" 
+    }, { status: 503 });
   }
-  return Response.json({ workflowsToRun: workflows.length }, { status: 200 });
 }
 
 function triggerWorkflow(wofkflowId: string) {

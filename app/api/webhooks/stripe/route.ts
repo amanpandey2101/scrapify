@@ -1,11 +1,32 @@
-import { handleCheckoutSessionCompleted } from "@/lib/stripe/handleCheckoutSessionCompleted";
-import { stripe } from "@/lib/stripe/stripe";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+
+// Only import Stripe-related modules if environment variables are available
+let stripe: any = null;
+let handleCheckoutSessionCompleted: any = null;
+
+// Check if Stripe is properly configured
+const isStripeConfigured = process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET;
+
+if (isStripeConfigured) {
+  try {
+    const stripeModule = require("@/lib/stripe/stripe");
+    stripe = stripeModule.stripe;
+    
+    const checkoutModule = require("@/lib/stripe/handleCheckoutSessionCompleted");
+    handleCheckoutSessionCompleted = checkoutModule.handleCheckoutSessionCompleted;
+  } catch (error) {
+    console.warn("Stripe modules not available:", error);
+  }
+}
 
 export async function POST(request: Request) {
-  const body = await request.text();
+  // If Stripe is not configured, return a 501 Not Implemented
+  if (!isStripeConfigured || !stripe || !handleCheckoutSessionCompleted) {
+    return new NextResponse("Stripe webhook not configured", { status: 501 });
+  }
 
+  const body = await request.text();
   const signatureHeaders = headers().get("stripe-signature") as string;
 
   try {
@@ -17,7 +38,7 @@ export async function POST(request: Request) {
 
     switch (event.type) {
       case "checkout.session.completed":
-        handleCheckoutSessionCompleted(event.data.object);
+        await handleCheckoutSessionCompleted(event.data.object);
         break;
 
       default:

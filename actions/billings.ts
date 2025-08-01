@@ -1,11 +1,22 @@
 "use server";
 
-import { getCreditsPack, PackId } from "@/lib/billing";
+import { getCreditsPack, PackId, isStripeConfigured } from "@/lib/billing";
 import { getAppUrl } from "@/lib/helper";
 import prisma from "@/lib/prisma";
-import { stripe } from "@/lib/stripe/stripe";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+
+// Only import Stripe if it's configured
+let stripe: any = null;
+
+if (isStripeConfigured()) {
+  try {
+    const stripeModule = require("@/lib/stripe/stripe");
+    stripe = stripeModule.stripe;
+  } catch (error) {
+    console.warn("Stripe module not available:", error);
+  }
+}
 
 export async function getAvailableCredits() {
   const { userId } = await auth();
@@ -24,6 +35,7 @@ export async function getAvailableCredits() {
 
   return balance.credits;
 }
+
 export async function setupUser() {
   const { userId } = await auth();
 
@@ -56,13 +68,22 @@ export async function purchaseCredits(packId: PackId) {
     throw new Error("Unauthenticated");
   }
 
+  // Check if Stripe is configured
+  if (!isStripeConfigured() || !stripe) {
+    throw new Error("Stripe is not configured. Please contact support.");
+  }
+
   const seletedPack = getCreditsPack(packId);
 
   if (!seletedPack) {
-    throw new Error("Inavlid package");
+    throw new Error("Invalid package");
   }
 
   const priceId = seletedPack?.priceId;
+
+  if (!priceId) {
+    throw new Error("Price ID not configured for this package");
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -114,6 +135,11 @@ export async function downloadInvoice(id: string) {
 
   if (!userId) {
     throw new Error("Unauthenticated");
+  }
+
+  // Check if Stripe is configured
+  if (!isStripeConfigured() || !stripe) {
+    throw new Error("Stripe is not configured. Please contact support.");
   }
 
   const purchase = await prisma.userPurchase.findUnique({
