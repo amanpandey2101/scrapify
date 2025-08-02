@@ -12,7 +12,7 @@ This is a highly customizable web scraper built with Next.js 14, PostgreSQL, Pri
 
 ![Screenshot 2](https://raw.githubusercontent.com/amanpandey2101/scrapify/refs/heads/main/public/assets/home-dashboard.jpg)
 
-### ScreenShot 2
+### ScreenShot 3
 
 ![Screenshot 2](https://raw.githubusercontent.com/amanpandey2101/scrapify/refs/heads/main/public/assets/editor.jpg)
 
