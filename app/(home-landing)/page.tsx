@@ -67,7 +67,7 @@ export default function HomeLandingPage() {
           {/* Credit offer */}
           <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 text-green-600 dark:text-green-400 font-medium backdrop-blur-sm">
             <SparklesIcon className="w-4 h-4 mr-2" />
-            New users get 200 credits for free upon first login
+            New users get 300 credits for free upon first login
           </div>
         </div>
       </SectionWrapper>
