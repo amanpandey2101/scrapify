@@ -6,11 +6,15 @@ This is a highly customizable web scraper built with Next.js 14, PostgreSQL, Pri
 
 ### ScreenShot 1
 
-![Screenshot 1](https://github.com/user-attachments/assets/07105297-8b67-4419-a92f-ef5ff5a038c6)
+![Screenshot 1](https://raw.githubusercontent.com/amanpandey2101/scrapify/refs/heads/main/public/assets/home-hero.jpg)
 
 ### ScreenShot 2
 
-![Screenshot 2](https://github.com/user-attachments/assets/ecf9c093-d03e-4ee0-bd71-48f1d0b38538)
+![Screenshot 2](https://raw.githubusercontent.com/amanpandey2101/scrapify/refs/heads/main/public/assets/home-dashboard.jpg)
+
+### ScreenShot 2
+
+![Screenshot 2](https://raw.githubusercontent.com/amanpandey2101/scrapify/refs/heads/main/public/assets/editor.jpg)
 
 ## Technologies Used
 
