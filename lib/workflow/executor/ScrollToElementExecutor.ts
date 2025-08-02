@@ -1,5 +1,6 @@
 import { ExecutionEnviornment } from "@/lib/types";
 import { ScrollToElementTask } from "../task/ScrollToElement";
+import { PuppeteerClient } from "@/lib/puppeteer-client";
 
 export async function ScrollToElementExecutor(
   enviornment: ExecutionEnviornment<typeof ScrollToElementTask>
@@ -11,14 +12,8 @@ export async function ScrollToElementExecutor(
       return false;
     }
 
-    await enviornment.getPage()!.evaluate((eleSelector) => {
-      const element = document.querySelector(eleSelector);
-      if (!element) {
-        throw new Error("Element not found");
-      }
-      const eleScroll = element.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ top: eleScroll });
-    }, selector);
+    const puppeteerClient = enviornment.getPage() as unknown as PuppeteerClient;
+    await puppeteerClient.scrollToElement(selector);
 
     return true;
   } catch (error: any) {

@@ -127,10 +127,10 @@ export type LogCollector = {
 export type ExecutionEnviornment<T extends WorkflowTask> = {
   getInput(name: T["inputs"][number]["name"]): string;
   setOutput(name: T["outputs"][number]["name"], value: string): void;
-  getBrowser(): Browser | undefined;
-  setBrowser(browser: Browser): void;
-  setPage(page: Page): void;
-  getPage(): Page | undefined;
+  getBrowser(): Browser | any | undefined;
+  setBrowser(browser: Browser | any): void;
+  setPage(page: Page | any): void;
+  getPage(): Page | any | undefined;
   log: LogCollector;
 };
 

@@ -27,6 +27,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/api/workflows/cron/route.ts"
-  ],
+, "puppeteer-service/src/index.ts"  ],
   "exclude": ["node_modules"]
 }

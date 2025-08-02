@@ -1,5 +1,6 @@
 import { ExecutionEnviornment } from "@/lib/types";
 import { WaitForElementTask } from "../task/WaitForElement";
+import { PuppeteerClient } from "@/lib/puppeteer-client";
 
 export async function WaitForElementExecutor(
   enviornment: ExecutionEnviornment<typeof WaitForElementTask>
@@ -10,18 +11,15 @@ export async function WaitForElementExecutor(
       enviornment.log.error("input -> selector is not defined");
       return false;
     }
+
     const visibility = enviornment.getInput("Visiblity");
     if (!visibility) {
       enviornment.log.error("input -> visibility is not defined");
       return false;
     }
 
-    await enviornment.getPage()!.waitForSelector(selector, {
-      visible: visibility === "visible",
-      hidden: visibility === "hidden",
-    });
-
-    enviornment.log.info(`Element ${selector} became: ${visibility}`);
+    const puppeteerClient = enviornment.getPage() as unknown as PuppeteerClient;
+    await puppeteerClient.waitForElement(selector);
 
     return true;
   } catch (error: any) {

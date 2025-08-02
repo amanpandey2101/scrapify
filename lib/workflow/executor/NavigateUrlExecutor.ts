@@ -1,5 +1,6 @@
 import { ExecutionEnviornment } from "@/lib/types";
 import { NavigateUrlTask } from "../task/NavigateUrl";
+import { PuppeteerClient } from "@/lib/puppeteer-client";
 
 export async function NavigateUrlExecutor(
   enviornment: ExecutionEnviornment<typeof NavigateUrlTask>
@@ -11,8 +12,8 @@ export async function NavigateUrlExecutor(
       return false;
     }
 
-    await enviornment.getPage()!.goto(url);
-    enviornment.log.info(`Visited ${url}`);
+    const puppeteerClient = enviornment.getPage() as unknown as PuppeteerClient;
+    await puppeteerClient.navigate(url);
 
     return true;
   } catch (error: any) {

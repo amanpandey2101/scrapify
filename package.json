@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "node -e \"const fs = require('fs'); const path = require('path'); const chromiumPath = path.join(require.resolve('@sparticuz/chromium'), '..', 'bin'); const distPath = path.join(process.cwd(), 'dist', 'chromium'); if (fs.existsSync(chromiumPath)) { fs.mkdirSync(distPath, { recursive: true }); fs.cpSync(chromiumPath, distPath, { recursive: true }); console.log('Chromium binary copied to dist folder.'); }\""
+    "lint": "next lint"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.2.0",
@@ -40,7 +39,6 @@
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.3",
-    "@sparticuz/chromium": "^138.0.2",
     "@tabler/icons-react": "^3.22.0",
     "@tanstack/react-query": "^5.59.19",
     "@xyflow/react": "^12.3.4",
@@ -62,7 +60,6 @@
     "nextjs-toploader": "^3.7.15",
     "openai": "^4.72.0",
     "puppeteer": "^23.7.1",
-    "puppeteer-core": "^24.15.0",
     "react": "^18",
     "react-countup": "^6.5.3",
     "react-day-picker": "^8.10.1",

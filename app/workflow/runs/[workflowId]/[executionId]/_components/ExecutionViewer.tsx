@@ -46,6 +46,7 @@ import { ExecutionLog } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import PhaseStatusBadge from "./PhaseStatusBadge";
 import ReactCountUpWrapper from "@/components/ReactCountUpWrapper";
+import { Textarea } from "@/components/ui/textarea";
 
 type ExecutionData = Awaited<ReturnType<typeof getWorkflowExecutionWithPhases>>;
 
@@ -284,7 +285,9 @@ function ParameterViewer({
                 <p className="text-sm text-muted-foreground flex-1 basis-1/3">
                   {key}
                 </p>
-                <Input
+                <Textarea
+                  rows={10}
+
                   readOnly
                   className="flex basis-2/3"
                   value={value as string}

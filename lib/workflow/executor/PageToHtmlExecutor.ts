@@ -1,26 +1,17 @@
-import {
-  AppNode,
-  ExecutionEnviornment,
-  LogCollector,
-} from "@/lib/types";
-import { IWorkflowExecutor } from ".";
+import { ExecutionEnviornment } from "@/lib/types";
 import { PageToHtmlTask } from "../task/PageToHtml";
+import { PuppeteerClient } from "@/lib/puppeteer-client";
 
-export class PageToHtmlExecutor implements IWorkflowExecutor {
-  async execute(
-    node: AppNode,
-    env: ExecutionEnviornment<typeof PageToHtmlTask>,
-    log: LogCollector
-  ): Promise<boolean> {
-    try {
-      const page = env.getPage();
-      const html = await page.content();
-      env.setOutput("HTML", html);
-      log.info("Page content extracted successfully.");
-      return true;
-    } catch (e: any) {
-      log.error(`Error extracting page content: ${e.message}`);
-      return false;
-    }
+export async function PageToHtmlExecutor(
+  enviornment: ExecutionEnviornment<typeof PageToHtmlTask>
+): Promise<boolean> {
+  try {
+    const puppeteerClient = enviornment.getPage() as unknown as PuppeteerClient;
+    const { html } = await puppeteerClient.getPageHtml();
+    enviornment.setOutput("HTML", html);
+    return true;
+  } catch (error: any) {
+    enviornment.log.error(error.message);
+    return false;
   }
 }

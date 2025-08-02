@@ -1,33 +1,36 @@
-import { TaskType } from "@/lib/types";
+import { ExecutionEnviornment, TaskType, WorkflowTask } from "@/lib/types";
 import { LaunchBrowserExecutor } from "./LaunchBrowserExecutor";
 import { PageToHtmlExecutor } from "./PageToHtmlExecutor";
-import { ExtractTextFromElementExecutor } from "./ExtractTextFromElementExecutor";
+import { ExtractTextFromElement } from "./ExtractTextFromElementExecutor";
 import { FillInputExecutor } from "./FillInputExecutor";
 import { ClickElementExecutor } from "./ClickElementExecutor";
 import { WaitForElementExecutor } from "./WaitForElementExecutor";
-import { DeliverViaWebHookExecutor } from "./DeliverViaWebHookExecutor";
+import { DeviverViaWebHookExecutor } from "./DeliverViaWebHookExecutor";
 import { ExtractDataWithAiExecutor } from "./ExtractDataWithAiExecutor";
 import { ReadPropertyFromJsonExecutor } from "./ReadPropertyFromJsonExecutor";
 import { AddPropertyToJsonExecutor } from "./AddPropertyToJsonExecutor ";
 import { NavigateUrlExecutor } from "./NavigateUrlExecutor";
 import { ScrollToElementExecutor } from "./ScrollToElementExecutor";
-import { IWorkflowExecutor } from ".";
+
+type ExecutorFunction<T extends WorkflowTask> = (
+  enviornment: ExecutionEnviornment<T>
+) => Promise<boolean>;
 
 type RegistryType = {
-  [key in TaskType]: IWorkflowExecutor;
+  [key in TaskType]: ExecutorFunction<WorkflowTask & { type: key }>;
 };
 
 export const ExecutorRegistry: RegistryType = {
-  LAUNCH_BROWSER: new LaunchBrowserExecutor(),
-  PAGE_TO_HTML: new PageToHtmlExecutor(),
-  EXTRACT_TEXT_FROM_ELEMENT: new ExtractTextFromElementExecutor(),
-  FILL_INPUT: new FillInputExecutor(),
-  CLICK_ELEMENT: new ClickElementExecutor(),
-  WAIT_FOR_ELEMENT: new WaitForElementExecutor(),
-  DELIVER_VIA_WEBHOOK: new DeliverViaWebHookExecutor(),
-  EXTRACT_DATA_WITH_AI: new ExtractDataWithAiExecutor(),
-  READ_PROPERTY_FROM_JSON: new ReadPropertyFromJsonExecutor(),
-  ADD_PROPERTY_TO_JSON: new AddPropertyToJsonExecutor(),
-  NAVIGATE_URL: new NavigateUrlExecutor(),
-  SCROLL_TO_ELEMENT: new ScrollToElementExecutor(),
+  LAUNCH_BROWSER: LaunchBrowserExecutor,
+  PAGE_TO_HTML: PageToHtmlExecutor,
+  EXTRACT_TEXT_FROM_ELEMENT: ExtractTextFromElement,
+  FILL_INPUT: FillInputExecutor,
+  CLICK_ELEMENT: ClickElementExecutor,
+  WAIT_FOR_ELEMENT: WaitForElementExecutor,
+  DELIVER_VIA_WEBHOOK: DeviverViaWebHookExecutor,
+  EXTRACT_DATA_WITH_AI: ExtractDataWithAiExecutor,
+  READ_PROPERTY_FROM_JSON: ReadPropertyFromJsonExecutor,
+  ADD_PROPERTY_TO_JSON: AddPropertyToJsonExecutor,
+  NAVIGATE_URL: NavigateUrlExecutor,
+  SCROLL_TO_ELEMENT: ScrollToElementExecutor,
 };
