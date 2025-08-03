@@ -102,20 +102,26 @@ export async function updateWorkFlow({
     throw new Error("Workflow not found");
   }
 
-  if (workflow.status !== WorkflowStatus.DRAFT) {
-    throw new Error("Workflow is not draft");
+  // If workflow is published, unpublish it when saving changes
+  const updateData: any = {
+    definition,
+  };
+
+  if (workflow.status === WorkflowStatus.PUBLISHED) {
+    updateData.status = WorkflowStatus.DRAFT;
+    updateData.executionPlan = null;
+    updateData.creditsCost = 0;
   }
 
   await prisma.workflow.update({
-    data: {
-      definition,
-    },
+    data: updateData,
     where: {
       id,
       userId,
     },
   });
   revalidatePath("/workflows");
+  revalidatePath(`/workflow/editor/${id}`);
 }
 
 export async function getWorkflowExecutionWithPhases(executionId: string) {

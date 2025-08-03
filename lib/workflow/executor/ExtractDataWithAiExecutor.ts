@@ -18,11 +18,14 @@ export async function ExtractDataWithAiExecutor(
       enviornment.log.error("input -> content is not defined");
       return false;
     }
+    console.log("Content being sent to AI:", content.substring(0, 500) + "...");
+    
     const prompt = enviornment.getInput("Prompt");
     if (!prompt) {
       enviornment.log.error("input -> prompt is not defined");
       return false;
     }
+    console.log("Prompt being sent to AI:", prompt);
 
     const credential = await prisma.credential.findUnique({
       where: {
@@ -35,10 +38,20 @@ export async function ExtractDataWithAiExecutor(
       return false;
     }
 
-    const plainCredentialValue = symmetricDecrypt(credential.value);
+    let plainCredentialValue;
+    try {
+      plainCredentialValue = symmetricDecrypt(credential.value);
+      console.log("Plain Credential Value", plainCredentialValue);
+    } catch (error: any) {
+      console.log(error);
+      enviornment.log.error(`Cannot decrypt credential: ${error.message}`);
+      enviornment.log.error("Make sure ENCRYPTION_KEY environment variable is set");
+      return false;
+    }
 
     if (!plainCredentialValue) {
-      enviornment.log.error("Cannot decrypt credential");
+      enviornment.log.error("Cannot decrypt credential - empty value returned");
+      console.log(plainCredentialValue);
       return false;
     }
 
@@ -52,7 +65,7 @@ export async function ExtractDataWithAiExecutor(
         {
           role: "system",
           content:
-            "You are a webscraper helper that extracts data from HTML or text. You will be given a piece of text or HTML content as input and also the prompt with the data you have to extract. The response should always be only the extracted data as a JSON array or object, without any additional words or explanations. Analyze the input carefully and extract data precisely based on the prompt. If no data is found, return an empty JSON array. Work only with the provided content and ensure the output is always a valid JSON array without any surrounding text",
+            "You are a webscraper helper that processes and extracts data from HTML or text. You will be given content and a prompt describing what to do with it. If the prompt asks for data extraction (like 'extract product names', 'get prices', etc.), return the results as a JSON array or object. If the prompt asks for text processing (like 'summarize', 'analyze', 'describe', etc.), return the processed text directly as a string. Always follow the prompt instructions precisely and provide only the requested output without additional explanations.",
         },
         {
           role: "user",
@@ -65,7 +78,7 @@ export async function ExtractDataWithAiExecutor(
       ],
       temperature: 1,
     });
-
+    console.log("Response", response);
     enviornment.log.info(
       `Prompt tokens used: ${JSON.stringify(response.usage?.prompt_tokens)}`
     );

@@ -49,12 +49,11 @@ function Topbar({
         {!hideButtons && (
           <Fragment>
             <ExecuteButton workflowId={workflowId} />
-            {isPublished && <UnPublishButton workflowId={workflowId} />}
-            {!isPublished && (
-              <Fragment>
-                <SaveButton workflowId={workflowId} />
-                <PublishButton workflowId={workflowId} />
-              </Fragment>
+            <SaveButton workflowId={workflowId} />
+            {isPublished ? (
+              <UnPublishButton workflowId={workflowId} />
+            ) : (
+              <PublishButton workflowId={workflowId} />
             )}
           </Fragment>
         )}

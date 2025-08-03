@@ -16,7 +16,16 @@ import { ExecutorRegistry } from "./executor/Registry";
 import { Browser, Page } from "puppeteer";
 import { Edge } from "@xyflow/react";
 import { createLogCollector } from "../log";
+interface PuppeteerClient {
+  closeSession(): Promise<void>;
+  // Add any other properties or methods that PuppeteerClient might have
+}
 
+function isPuppeteerClient(
+  browser: Browser | PuppeteerClient
+): browser is PuppeteerClient {
+  return typeof (browser as PuppeteerClient).closeSession === "function";
+}
 export async function executeWorkflow(executionId: string, nextRunAt?: Date) {
   const execution = await prisma.workflowExecution.findUnique({
     where: {
@@ -304,9 +313,17 @@ function createExecutionEnviornment(
 
 async function cleanupEnviornment(enviornment: Enviornment) {
   if (enviornment.browser) {
-    await enviornment.browser.close().catch((err) => {
-      console.log("Cannot close browser, reason:", err);
-    });
+    // Use the type guard to correctly narrow the type
+    if (isPuppeteerClient(enviornment.browser)) {
+      await enviornment.browser.closeSession().catch((err: any) => {
+        console.log("Cannot close browser session, reason:", err);
+      });
+    } else if (typeof enviornment.browser.close === "function") {
+      // This will correctly infer enviornment.browser as Browser
+      await enviornment.browser.close().catch((err: any) => {
+        console.log("Cannot close browser, reason:", err);
+      });
+    }
   }
 }
 

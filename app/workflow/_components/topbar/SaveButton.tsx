@@ -16,8 +16,8 @@ function SaveButton({ workflowId }: { workflowId: string }) {
     onSuccess: () => {
       toast.success("Flow saved successfully", { id: "save-workflow" });
     },
-    onError: () => {
-      toast.error("Somwthing went wrong", { id: "save-workflow" });
+    onError: (error: any) => {
+      toast.error(error.message || "Something went wrong", { id: "save-workflow" });
     },
   });
 
